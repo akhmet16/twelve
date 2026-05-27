@@ -8,21 +8,22 @@ export default {
     extend: {
       colors: {
         bg: {
-          primary: '#0a0a0a',
-          secondary: '#111111',
-          hover: '#1a1a1a',
-          active: '#1e1e1e',
+          primary: '#f5f5f5',
+          secondary: '#ebebeb',
+          hover: '#e2e2e2',
+          active: '#d8d8d8',
         },
         text: {
-          primary: '#e8e8e8',
-          secondary: '#888888',
-          muted: '#555555',
+          primary: '#1c1c1e',
+          secondary: '#6e6e73',
+          muted: '#aeaeb2',
         },
-        accent: '#4a9eff',
-        border: '#222222',
+        accent: '#007aff',
+        border: '#d1d1d6',
       },
       fontFamily: {
         sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', '"Segoe UI"', 'sans-serif'],
+        serif: ['Georgia', '"Times New Roman"', 'serif'],
       },
     },
   },

@@ -1,14 +1,25 @@
-const NAV_ITEMS = [
-  { id: 'today',    label: 'Сегодня',  icon: SunIcon },
-  { id: 'tomorrow', label: 'Завтра',   icon: MoonIcon },
-  { id: 'week',     label: 'Неделя',   icon: CalendarIcon },
-  { id: 'twelve',   label: '12 недель', icon: TargetIcon },
-  { id: 'vision',   label: 'Видение',  icon: StarIcon },
+function getTodayRu() {
+  const today = new Date()
+  const weekday = today.toLocaleDateString('ru-RU', { weekday: 'long' })
+  const dayMonth = today.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })
+  return `${weekday}, ${dayMonth}`
+}
+
+const NAV_GROUPS = [
+  [
+    { id: 'twelve',   label: '12 недель', icon: TargetIcon },
+    { id: 'vision',   label: 'Видение',   icon: StarIcon },
+  ],
+  [
+    { id: 'today',    label: 'Сегодня',   icon: SunIcon },
+    { id: 'tomorrow', label: 'Завтра',    icon: MoonIcon },
+    { id: 'week',     label: 'Неделя',    icon: CalendarIcon },
+  ],
 ]
 
 function SunIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="4"/>
       <line x1="12" y1="2" x2="12" y2="4"/>
       <line x1="12" y1="20" x2="12" y2="22"/>
@@ -24,7 +35,7 @@ function SunIcon() {
 
 function MoonIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
     </svg>
   )
@@ -32,7 +43,7 @@ function MoonIcon() {
 
 function CalendarIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
       <line x1="16" y1="2" x2="16" y2="6"/>
       <line x1="8" y1="2" x2="8" y2="6"/>
@@ -43,7 +54,7 @@ function CalendarIcon() {
 
 function TargetIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="10"/>
       <circle cx="12" cy="12" r="6"/>
       <circle cx="12" cy="12" r="2"/>
@@ -53,38 +64,52 @@ function TargetIcon() {
 
 function StarIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
     </svg>
   )
 }
 
 export default function Sidebar({ activeTab, onTabChange }) {
+  const dateStr = getTodayRu()
+
   return (
-    <aside className="w-52 h-full bg-bg-secondary border-r border-border flex flex-col pt-10 shrink-0">
-      <nav className="flex flex-col gap-0.5 px-2 mt-2">
-        {NAV_ITEMS.map(({ id, label, icon: Icon }) => {
-          const isActive = activeTab === id
-          return (
-            <button
-              key={id}
-              onClick={() => onTabChange(id)}
-              className={`
-                flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium
-                transition-colors duration-100 cursor-default text-left w-full
-                ${isActive
-                  ? 'bg-bg-active text-text-primary'
-                  : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'
-                }
-              `}
-            >
-              <span className={isActive ? 'text-accent' : 'text-text-muted'}>
-                <Icon />
-              </span>
-              {label}
-            </button>
-          )
-        })}
+    <aside className="w-52 h-full bg-bg-secondary border-r border-border flex flex-col shrink-0">
+      {/* Header */}
+      <div className="px-5 pt-10 pb-4">
+        <h1 className="font-serif text-xl text-text-primary tracking-wide">Twelve</h1>
+        <p className="text-xs text-text-muted mt-1 capitalize">{dateStr}</p>
+      </div>
+
+      {/* Nav */}
+      <nav className="flex flex-col px-2 flex-1">
+        {NAV_GROUPS.map((group, gi) => (
+          <div key={gi}>
+            {gi > 0 && <div className="h-px bg-border mx-2 my-1.5" />}
+            {group.map(({ id, label, icon: Icon }) => {
+              const isActive = activeTab === id
+              return (
+                <button
+                  key={id}
+                  onClick={() => onTabChange(id)}
+                  className={`
+                    flex items-center gap-2.5 px-3 py-1.5 rounded-md text-sm w-full text-left
+                    transition-colors duration-100 cursor-default
+                    ${isActive
+                      ? 'bg-bg-active text-text-primary font-medium'
+                      : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'
+                    }
+                  `}
+                >
+                  <span className={isActive ? 'text-accent' : 'text-text-muted'}>
+                    <Icon />
+                  </span>
+                  {label}
+                </button>
+              )
+            })}
+          </div>
+        ))}
       </nav>
     </aside>
   )
