@@ -43,9 +43,16 @@ export default function TaskList({ storageKey }) {
     try { return JSON.parse(localStorage.getItem(storageKey) || '[]') }
     catch { return [] }
   })
+  const [goals] = useState(() => {
+    try {
+      const data = JSON.parse(localStorage.getItem('twelve-year') || 'null')
+      return data?.goals || []
+    } catch { return [] }
+  })
   const [inputOpen, setInputOpen] = useState(false)
   const [inputText, setInputText] = useState('')
   const [inputDeadline, setInputDeadline] = useState('')
+  const [inputGoal, setInputGoal] = useState(null)
 
   function save(next) {
     setTasks(next)
@@ -55,11 +62,16 @@ export default function TaskList({ storageKey }) {
   function addTask() {
     const text = inputText.trim()
     if (text) {
-      save([...tasks, { id: Date.now(), text, done: false, deadline: inputDeadline || null }])
+      save([...tasks, {
+        id: Date.now(), text, done: false,
+        deadline: inputDeadline || null,
+        goalIndex: inputGoal,
+      }])
     }
     setInputOpen(false)
     setInputText('')
     setInputDeadline('')
+    setInputGoal(null)
   }
 
   function toggleTask(id) {
@@ -72,6 +84,13 @@ export default function TaskList({ storageKey }) {
 
   function handleWrapperBlur(e) {
     if (!e.currentTarget.contains(e.relatedTarget)) addTask()
+  }
+
+  function handleEscape() {
+    setInputOpen(false)
+    setInputText('')
+    setInputDeadline('')
+    setInputGoal(null)
   }
 
   return (
@@ -94,6 +113,12 @@ export default function TaskList({ storageKey }) {
 
             <DeadlineBadge deadline={task.deadline} />
 
+            {task.goalIndex != null && goals[task.goalIndex] && (
+              <span className="text-[10px] text-accent/70 shrink-0 max-w-[80px] truncate">
+                {goals[task.goalIndex]}
+              </span>
+            )}
+
             <button
               onClick={() => deleteTask(task.id)}
               className="opacity-0 group-hover:opacity-100 text-text-muted hover:text-red-500 transition-all duration-100 cursor-default shrink-0"
@@ -115,7 +140,7 @@ export default function TaskList({ storageKey }) {
               onChange={e => setInputText(e.target.value)}
               onKeyDown={e => {
                 if (e.key === 'Enter') addTask()
-                if (e.key === 'Escape') { setInputOpen(false); setInputText(''); setInputDeadline('') }
+                if (e.key === 'Escape') handleEscape()
               }}
               placeholder="Новая задача..."
               className="flex-1 text-sm bg-transparent outline-none text-text-primary placeholder:text-text-muted"
@@ -127,11 +152,28 @@ export default function TaskList({ storageKey }) {
               onChange={e => setInputDeadline(e.target.value)}
               onKeyDown={e => {
                 if (e.key === 'Enter') addTask()
-                if (e.key === 'Escape') { setInputOpen(false); setInputText(''); setInputDeadline('') }
+                if (e.key === 'Escape') handleEscape()
               }}
               tabIndex={0}
               className="text-xs text-text-secondary bg-transparent outline-none w-28"
             />
+            {goals.length > 0 && (
+              <select
+                value={inputGoal ?? ''}
+                onChange={e => setInputGoal(e.target.value === '' ? null : Number(e.target.value))}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') addTask()
+                  if (e.key === 'Escape') handleEscape()
+                }}
+                tabIndex={0}
+                className="text-xs text-text-secondary bg-transparent outline-none cursor-default max-w-[100px]"
+              >
+                <option value="">Без цели</option>
+                {goals.map((g, i) => (
+                  <option key={i} value={i}>{g}</option>
+                ))}
+              </select>
+            )}
           </div>
         ) : (
           <button

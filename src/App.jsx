@@ -4,6 +4,7 @@ import PlaceholderView from './views/PlaceholderView'
 import WeekView from './views/WeekView'
 import TodayView from './views/TodayView'
 import TomorrowView from './views/TomorrowView'
+import TwelveView from './views/TwelveView'
 
 const TABS = {
   today:    'Сегодня',
@@ -18,6 +19,7 @@ function renderView(tab) {
     case 'today':    return <TodayView />
     case 'tomorrow': return <TomorrowView />
     case 'week':     return <WeekView />
+    case 'twelve':   return <TwelveView />
     default:         return <PlaceholderView />
   }
 }
