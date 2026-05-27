@@ -2,6 +2,8 @@ import { useState } from 'react'
 import Sidebar from './components/Sidebar'
 import PlaceholderView from './views/PlaceholderView'
 import WeekView from './views/WeekView'
+import TodayView from './views/TodayView'
+import TomorrowView from './views/TomorrowView'
 
 const TABS = {
   today:    'Сегодня',
@@ -11,17 +13,30 @@ const TABS = {
   vision:   'Видение',
 }
 
+function renderView(tab) {
+  switch (tab) {
+    case 'today':    return <TodayView />
+    case 'tomorrow': return <TomorrowView />
+    case 'week':     return <WeekView />
+    default:         return <PlaceholderView />
+  }
+}
+
 export default function App() {
-  const [activeTab, setActiveTab] = useState('twelve')
+  const [activeTab, setActiveTab] = useState('today')
 
   return (
-    <div className="flex h-screen w-screen bg-bg-primary overflow-hidden">
+    <div className="flex h-screen w-screen overflow-hidden bg-bg-primary">
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
-      <main className="flex-1 h-full overflow-hidden">
-        {activeTab === 'week'
-          ? <WeekView />
-          : <PlaceholderView title={TABS[activeTab]} />
-        }
+      <main className="flex-1 h-full overflow-hidden flex flex-col bg-bg-primary">
+        <div className="px-10 pt-12 pb-4 shrink-0">
+          <h1 className="text-[28px] font-bold text-text-primary tracking-tight leading-none">
+            {TABS[activeTab]}
+          </h1>
+        </div>
+        <div className="flex-1 overflow-hidden">
+          {renderView(activeTab)}
+        </div>
       </main>
     </div>
   )

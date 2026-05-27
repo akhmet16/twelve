@@ -8,13 +8,13 @@ export default {
     extend: {
       colors: {
         bg: {
-          primary: '#f5f5f5',
-          secondary: '#ebebeb',
-          hover: '#e2e2e2',
-          active: '#d8d8d8',
+          primary: '#ffffff',
+          secondary: '#f5f5f5',
+          hover: '#ebebeb',
+          active: '#e2e2e2',
         },
         text: {
-          primary: '#1c1c1e',
+          primary: '#1a1a1a',
           secondary: '#6e6e73',
           muted: '#aeaeb2',
         },
