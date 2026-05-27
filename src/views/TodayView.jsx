@@ -1,5 +1,5 @@
 import TaskList from '../components/TaskList'
 
-export default function TodayView() {
-  return <TaskList storageKey="twelve-today-tasks" />
+export default function TodayView({ onSelectTask }) {
+  return <TaskList storageKey="twelve-today-tasks" onSelectTask={onSelectTask} />
 }

@@ -8,25 +8,25 @@ export default {
     extend: {
       colors: {
         bg: {
-          primary: '#ffffff',
-          secondary: '#f5f5f5',
-          hover: '#ebebeb',
-          active: '#e2e2e2',
+          primary:  'var(--bg-primary)',
+          secondary: 'var(--bg-secondary)',
+          sidebar:  'var(--bg-sidebar)',
+          hover:    'var(--bg-hover)',
+          active:   'var(--bg-active)',
         },
         text: {
-          primary: '#1a1a1a',
-          secondary: '#6e6e73',
-          muted: '#aeaeb2',
+          primary:   'var(--text-primary)',
+          secondary: 'var(--text-secondary)',
+          muted:     'var(--text-muted)',
         },
         accent: '#007aff',
-        border: '#d1d1d6',
+        border: 'var(--border)',
       },
       fontFamily: {
-        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', '"Segoe UI"', 'sans-serif'],
+        sans:  ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', '"Segoe UI"', 'sans-serif'],
         serif: ['Georgia', '"Times New Roman"', 'serif'],
       },
     },
   },
   plugins: [],
 }
-

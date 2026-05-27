@@ -70,11 +70,11 @@ function StarIcon() {
   )
 }
 
-export default function Sidebar({ activeTab, onTabChange }) {
+export default function Sidebar({ activeTab, onTabChange, theme, onThemeToggle }) {
   const dateStr = getTodayRu()
 
   return (
-    <aside className="w-52 h-full bg-bg-secondary border-r border-border flex flex-col shrink-0">
+    <aside className="w-52 h-full bg-bg-sidebar border-r border-border flex flex-col shrink-0">
       {/* Header */}
       <div className="px-5 pt-10 pb-4">
         <h1 className="font-serif text-xl text-text-primary tracking-wide">Twelve</h1>
@@ -111,6 +111,17 @@ export default function Sidebar({ activeTab, onTabChange }) {
           </div>
         ))}
       </nav>
+
+      {/* Theme toggle */}
+      <div className="px-3 pb-5">
+        <button
+          onClick={onThemeToggle}
+          className="w-full flex items-center justify-center h-8 rounded-md text-text-muted hover:bg-bg-hover hover:text-text-secondary transition-colors duration-100 cursor-default"
+          title={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
+        >
+          {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+        </button>
+      </div>
     </aside>
   )
 }

@@ -28,18 +28,8 @@ function DeadlineBadge({ deadline }) {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   const d = new Date(deadline + 'T00:00:00')
-
-  const colorClass = d < today
-    ? 'text-red-500'
-    : d.getTime() === today.getTime()
-      ? 'text-orange-500'
-      : 'text-text-muted'
-
-  return (
-    <span className={`text-xs shrink-0 ${colorClass}`}>
-      {d.getDate()} {MONTHS[d.getMonth()]}
-    </span>
-  )
+  const colorClass = d < today ? 'text-red-500' : d.getTime() === today.getTime() ? 'text-orange-500' : 'text-text-muted'
+  return <span className={`text-xs shrink-0 ${colorClass}`}>{d.getDate()} {MONTHS[d.getMonth()]}</span>
 }
 
 function CheckIcon() {
@@ -58,7 +48,7 @@ function XIcon() {
   )
 }
 
-export default function WeekView() {
+export default function WeekView({ onSelectTask }) {
   const [tasks, setTasks] = useState(() => {
     try { return JSON.parse(localStorage.getItem('twelve-week-tasks') || '{}') }
     catch { return {} }
@@ -70,54 +60,59 @@ export default function WeekView() {
     } catch { return [] }
   })
   const [activeInput, setActiveInput] = useState(null)
-  const [inputValue, setInputValue] = useState('')
+  const [inputValue, setInputValue]   = useState('')
   const [inputDeadline, setInputDeadline] = useState('')
-  const [inputGoal, setInputGoal] = useState(null)
+  const [inputGoal, setInputGoal]     = useState(null)
 
   const today = useMemo(() => {
-    const d = new Date()
-    d.setHours(0, 0, 0, 0)
-    return d
+    const d = new Date(); d.setHours(0, 0, 0, 0); return d
   }, [])
-
   const days = useMemo(() => getWeekDays(), [])
 
-  function saveTasks(next) {
+  function persistTasks(next) {
     setTasks(next)
     localStorage.setItem('twelve-week-tasks', JSON.stringify(next))
   }
 
+  function updateTaskById(key, id, updates) {
+    setTasks(prev => {
+      const next = { ...prev, [key]: (prev[key] || []).map(t => t.id === id ? { ...t, ...updates } : t) }
+      localStorage.setItem('twelve-week-tasks', JSON.stringify(next))
+      return next
+    })
+  }
+
+  function deleteTaskById(key, id) {
+    setTasks(prev => {
+      const next = { ...prev, [key]: (prev[key] || []).filter(t => t.id !== id) }
+      localStorage.setItem('twelve-week-tasks', JSON.stringify(next))
+      return next
+    })
+  }
+
   function openInput(key) {
-    setInputValue('')
-    setInputDeadline('')
-    setInputGoal(null)
-    setActiveInput(key)
+    setInputValue(''); setInputDeadline(''); setInputGoal(null); setActiveInput(key)
   }
 
   function commitInput(key) {
     const text = inputValue.trim()
     if (text) {
-      saveTasks({
+      persistTasks({
         ...tasks,
         [key]: [...(tasks[key] || []), {
-          id: Date.now(), text, done: false,
-          deadline: inputDeadline || null,
-          goalIndex: inputGoal,
+          id: Date.now(), text, done: false, deadline: inputDeadline || null, goalIndex: inputGoal,
         }],
       })
     }
-    setActiveInput(null)
-    setInputValue('')
-    setInputDeadline('')
-    setInputGoal(null)
+    setActiveInput(null); setInputValue(''); setInputDeadline(''); setInputGoal(null)
   }
 
   function toggleTask(key, id) {
-    saveTasks({ ...tasks, [key]: tasks[key].map(t => t.id === id ? { ...t, done: !t.done } : t) })
-  }
-
-  function deleteTask(key, id) {
-    saveTasks({ ...tasks, [key]: tasks[key].filter(t => t.id !== id) })
+    setTasks(prev => {
+      const next = { ...prev, [key]: (prev[key] || []).map(t => t.id === id ? { ...t, done: !t.done } : t) }
+      localStorage.setItem('twelve-week-tasks', JSON.stringify(next))
+      return next
+    })
   }
 
   function handleInputBlur(key, e) {
@@ -125,10 +120,7 @@ export default function WeekView() {
   }
 
   function handleEscape() {
-    setActiveInput(null)
-    setInputValue('')
-    setInputDeadline('')
-    setInputGoal(null)
+    setActiveInput(null); setInputValue(''); setInputDeadline(''); setInputGoal(null)
   }
 
   return (
@@ -139,7 +131,6 @@ export default function WeekView() {
           const isPast = day < today
           const isToday = day.getTime() === today.getTime()
           const dayTasks = tasks[key] || []
-
           const weekday = day.toLocaleDateString('ru-RU', { weekday: 'long' })
           const dayName = weekday.charAt(0).toUpperCase() + weekday.slice(1)
           const dayDate = day.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })
@@ -156,9 +147,14 @@ export default function WeekView() {
 
               <div className="pl-[68px]">
                 {dayTasks.map(task => (
-                  <div key={task.id} className="group flex items-center gap-2.5 py-[5px]">
+                  <div
+                    key={task.id}
+                    data-taskrow="true"
+                    className="group flex items-center gap-2.5 py-[5px]"
+                    onClick={() => onSelectTask?.(task, u => updateTaskById(key, task.id, u), () => deleteTaskById(key, task.id))}
+                  >
                     <button
-                      onClick={() => toggleTask(key, task.id)}
+                      onClick={e => { e.stopPropagation(); toggleTask(key, task.id) }}
                       className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors duration-100 cursor-default
                         ${task.done ? 'bg-accent border-accent' : 'border-text-muted hover:border-text-secondary'}`}
                     >
@@ -174,7 +170,7 @@ export default function WeekView() {
                       </span>
                     )}
                     <button
-                      onClick={() => deleteTask(key, task.id)}
+                      onClick={e => { e.stopPropagation(); deleteTaskById(key, task.id) }}
                       className="opacity-0 group-hover:opacity-100 text-text-muted hover:text-red-500 transition-all duration-100 cursor-default shrink-0"
                     >
                       <XIcon />
@@ -192,10 +188,7 @@ export default function WeekView() {
                       autoFocus
                       value={inputValue}
                       onChange={e => setInputValue(e.target.value)}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter') commitInput(key)
-                        if (e.key === 'Escape') handleEscape()
-                      }}
+                      onKeyDown={e => { if (e.key === 'Enter') commitInput(key); if (e.key === 'Escape') handleEscape() }}
                       placeholder="Новая задача..."
                       className="flex-1 text-sm bg-transparent outline-none text-text-primary placeholder:text-text-muted"
                       style={{ userSelect: 'text' }}
@@ -204,10 +197,7 @@ export default function WeekView() {
                       type="date"
                       value={inputDeadline}
                       onChange={e => setInputDeadline(e.target.value)}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter') commitInput(key)
-                        if (e.key === 'Escape') handleEscape()
-                      }}
+                      onKeyDown={e => { if (e.key === 'Enter') commitInput(key); if (e.key === 'Escape') handleEscape() }}
                       tabIndex={0}
                       className="text-xs text-text-secondary bg-transparent outline-none w-28"
                     />
@@ -215,17 +205,12 @@ export default function WeekView() {
                       <select
                         value={inputGoal ?? ''}
                         onChange={e => setInputGoal(e.target.value === '' ? null : Number(e.target.value))}
-                        onKeyDown={e => {
-                          if (e.key === 'Enter') commitInput(key)
-                          if (e.key === 'Escape') handleEscape()
-                        }}
+                        onKeyDown={e => { if (e.key === 'Enter') commitInput(key); if (e.key === 'Escape') handleEscape() }}
                         tabIndex={0}
                         className="text-xs text-text-secondary bg-transparent outline-none cursor-default max-w-[90px]"
                       >
                         <option value="">Без цели</option>
-                        {goals.map((g, i) => (
-                          <option key={i} value={i}>{g}</option>
-                        ))}
+                        {goals.map((g, i) => <option key={i} value={i}>{g}</option>)}
                       </select>
                     )}
                   </div>
